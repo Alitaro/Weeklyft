@@ -1,0 +1,15 @@
+<RCC>
+    <qresource>
+        <file>qtquickcontrols2.conf</file>
+        <file>Weeklyft.qmlproject</file>
+        <file>Weeklyft/Constants.qml</file>
+        <file>Weeklyft/EventListModel.qml</file>
+        <file>Weeklyft/EventListSimulator.qml</file>
+        <file>Weeklyft/qmldir</file>
+        <file>WeeklyftContent/App.qml</file>
+        <file>WeeklyftContent/DatabasePage.qml</file>
+        <file>WeeklyftContent/DayEditPage.qml</file>
+        <file>WeeklyftContent/PlanningDaysPage.qml</file>
+        <file>WeeklyftContent/SportPage.qml</file>
+    </qresource>
+</RCC>

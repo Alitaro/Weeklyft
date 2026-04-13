@@ -3,6 +3,9 @@
 #include "../repositories/PlanningRepository.h"
 #include "../uiModels/PlanningListModel.h"
 
+#include "../repositories/ExerciseRepository.h"
+#include "../uiModels/ExerciseListModel.h"
+
 #include <QDebug>
 
 /**
@@ -17,15 +20,18 @@ static const QStringList DAYS = {
     "Jeudi", "Vendredi", "Samedi", "Dimanche"
 };
 
-DatabasePageViewModel::DatabasePageViewModel(PlanningRepository* planningRepo)
+DatabasePageViewModel::DatabasePageViewModel(PlanningRepository* planningRepo, ExerciseRepository* exerciseRepo)
     : QObject(nullptr)
     , m_planningRepo(planningRepo)
     , m_planningModel(new PlanningListModel(this))
+    , m_exerciseRepo(exerciseRepo)
+    , m_exerciseModel(new ExerciseListModel(this))
 {
     Q_ASSERT(m_planningRepo);
 
     // Chargement initial
     loadPlannings();
+    loadExercises();
 }
 
 /**
@@ -144,3 +150,106 @@ QString DatabasePageViewModel::selectedPlanningName() const
     return m_selectedPlanning.name;
 }
 
+
+
+// ===============================
+// EXERCISES
+// ===============================
+
+QObject* DatabasePageViewModel::exerciseModel() const
+{
+    return m_exerciseModel;
+}
+
+Q_INVOKABLE void DatabasePageViewModel::loadExercises()
+{
+    if (!m_exerciseRepo)
+        return;
+
+    qDebug() << "[DatabaseVM] Loading exercises...";
+
+    const QVector<Exercise> exercises = m_exerciseRepo->getAllExercises();
+
+    m_exerciseModel->setExercises(exercises);
+
+    qDebug() << "[DatabaseVM] Exercises loaded:" << exercises.size();
+}
+
+Q_INVOKABLE int DatabasePageViewModel::createExercise(const QString& name)
+{
+    if (name.trimmed().isEmpty())
+    {
+        qDebug() << "[DatabaseVM] createExercise ignored: empty name";
+        return -1;
+    }
+
+    if (!m_exerciseRepo)
+        return -1;
+
+    qDebug() << "[DatabaseVM] Creating exercise:" << name;
+
+    // 1. Insert en base
+    int id = m_exerciseRepo->createExercise(name);
+
+    // 2. Construire objet local
+    Exercise exercise;
+    exercise.id = id;
+    exercise.name = name;
+
+    // 3. Update UI model instantanément
+
+    m_exerciseModel->addExercise(exercise);
+
+    qDebug() << "[DatabaseVM] Exercise created with id:" << id;
+
+    return id;
+}
+
+Q_INVOKABLE void DatabasePageViewModel::selectExercise(int id)
+{
+    Exercise exercise = m_exerciseModel->getById(id);
+
+    if (exercise.id == m_selectedExercise.id)
+        return;
+
+    m_selectedExercise = exercise;
+
+    qDebug() << "[DatabaseVM] Selected exercise:" << exercise.id << exercise.name;
+
+    emit selectedExerciseChanged();
+}
+
+
+Q_INVOKABLE void DatabasePageViewModel::deleteSelectedExercise()
+{
+    if (!m_exerciseRepo)
+        return;
+
+    if (m_selectedExercise.id <= 0)
+        return;
+
+    int id = m_selectedExercise.id;
+
+    qDebug() << "[DatabaseVM] Deleting exercise:" << id;
+
+    // 1. supprimer en DB
+    m_exerciseRepo->deleteExercise(id);
+
+    // 2. supprimer du model (UI instant)
+    m_exerciseModel->removeById(id);
+
+    // 3. reset sélection
+    m_selectedExercise = {};
+
+    emit selectedExerciseChanged();
+}
+
+int DatabasePageViewModel::selectedExerciseId() const
+{
+    return m_selectedExercise.id;
+}
+
+QString DatabasePageViewModel::selectedExerciseName() const
+{
+    return m_selectedExercise.name;
+}

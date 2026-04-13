@@ -30,11 +30,12 @@ int main(int argc, char *argv[])
     // Repos
     // ============================
     auto planningRepo = new PlanningRepository(db);
+    auto exerciseRepo = new ExerciseRepository(db);
 
     // ============================
     // ViewModel
     // ============================
-    auto databaseVM = new DatabasePageViewModel(planningRepo);
+    auto databaseVM = new DatabasePageViewModel(planningRepo, exerciseRepo);
 
     // ============================
     // QML

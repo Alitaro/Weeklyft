@@ -78,4 +78,79 @@ Rectangle {
             stackView.push("PlanningDaysPage.qml")
         }
     }
+
+
+
+    // =================================
+    // EXERCICES
+    //=================================
+    Text {
+        x: 153
+        y: 395
+        text: qsTr("Exercises")
+        font.pixelSize: 12
+    }
+
+    ListView {
+        id: listViewExercises
+        x: 0
+        y: 422
+        width: parent.width
+        height: 300
+
+        model: databaseVM.exerciseModel
+
+        delegate: Rectangle {
+            width: ListView.view.width
+            height: 50
+
+            Text {
+                anchors.centerIn: parent
+                text: name
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    databaseVM.selectExercise(id)
+                    // TODO
+                }
+            }
+        }
+    }
+
+    Button {
+        x: 1
+        y: 383
+        text: "Add Exercise"
+
+        onClicked: exerciseDialog.open()
+    }
+
+    Dialog {
+        id: exerciseDialog
+        modal: true
+        title: "Nouvel exercice"
+
+        standardButtons: Dialog.Ok | Dialog.Cancel
+
+        Column {
+            spacing: 10
+            padding: 10
+
+            TextField {
+                id: exerciseNameField
+                placeholderText: "Nom de l'exercice"
+                width: 200
+            }
+        }
+
+        onAccepted: {
+            if (exerciseNameField.text.length === 0)
+                return
+
+            let id = databaseVM.createExercise(exerciseNameField.text)
+            exerciseNameField.text = ""
+        }
+    }
 }

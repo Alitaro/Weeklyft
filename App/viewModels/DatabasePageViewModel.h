@@ -1,10 +1,14 @@
 #pragma once
 
 #include "App/models/Planning.h"
+#include "App/models/Exercise.h"
 #include <QObject>
 
 class PlanningRepository;
 class PlanningListModel;
+
+class ExerciseRepository;
+class ExerciseListModel;
 
 /**
  * ViewModel de la page Database
@@ -24,8 +28,15 @@ class DatabasePageViewModel : public QObject
     Q_PROPERTY(QString selectedPlanningName READ selectedPlanningName NOTIFY selectedPlanningChanged)
 
 
+    Q_PROPERTY(QObject* exerciseModel READ exerciseModel CONSTANT)
+
+    // ID du planning actuellement sélectionné
+    Q_PROPERTY(int selectedExerciseId READ selectedExerciseId NOTIFY selectedExerciseChanged)
+    Q_PROPERTY(QString selectedExerciseName READ selectedExerciseName NOTIFY selectedExerciseChanged)
+
+
 public:
-    explicit DatabasePageViewModel(PlanningRepository* planningRepo);
+    explicit DatabasePageViewModel(PlanningRepository* planningRepo, ExerciseRepository* exerciseRepo);
 
     // ===============================
     // PLANNINGS
@@ -59,11 +70,30 @@ public:
     QString selectedPlanningName() const;
 
 
+    // ===============================
+    // EXERCISES
+    // ===============================
+    QObject* exerciseModel() const;
+
+    Q_INVOKABLE void loadExercises();
+
+    Q_INVOKABLE int createExercise(const QString& name);
+
+    Q_INVOKABLE void selectExercise(int id);
+
+
+    Q_INVOKABLE void deleteSelectedExercise();
+
+    int selectedExerciseId() const;
+    QString selectedExerciseName() const;
+
+
 signals:
     /**
      * Notifie changement de planning sélectionné
      */
     void selectedPlanningChanged();
+    void selectedExerciseChanged();
 
 private:
     // ===============================
@@ -76,4 +106,16 @@ private:
 
     // State UI
     Planning m_selectedPlanning;
+
+
+    // ===============================
+    // EXERCISES
+    // ===============================
+    ExerciseRepository* m_exerciseRepo = nullptr;
+
+    // Model exposé à QML
+    ExerciseListModel* m_exerciseModel = nullptr;
+
+    // State UI
+    Exercise m_selectedExercise;
 };

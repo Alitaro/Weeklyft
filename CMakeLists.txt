@@ -24,6 +24,10 @@ qt_standard_project_setup()
 # ============================
 qt_add_executable(WeeklyftApp
     ${CMAKE_SOURCE_DIR}/App/main.cpp
+    ${CMAKE_SOURCE_DIR}/App/DatabaseManager.h
+    ${CMAKE_SOURCE_DIR}/App/DatabaseManager.cpp
+    ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.h
+    ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.cpp
 )
 
 # ============================
@@ -47,4 +51,5 @@ qt_add_qml_module(WeeklyftApp
 
     QML_FILES
         WeeklyftContent/App.qml
+        WeeklyftContent/DatabasePage.qml
 )

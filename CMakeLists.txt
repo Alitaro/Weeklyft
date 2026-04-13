@@ -24,10 +24,15 @@ qt_standard_project_setup()
 # ============================
 qt_add_executable(WeeklyftApp
     ${CMAKE_SOURCE_DIR}/App/main.cpp
-    ${CMAKE_SOURCE_DIR}/App/DatabaseManager.h
     ${CMAKE_SOURCE_DIR}/App/DatabaseManager.cpp
-    ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.h
+    ${CMAKE_SOURCE_DIR}/App/DatabaseManager.h
+    ${CMAKE_SOURCE_DIR}/App/models/Planning.h
     ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.cpp
+    ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.h
+    ${CMAKE_SOURCE_DIR}/App/uiModels/PlanningListModel.cpp
+    ${CMAKE_SOURCE_DIR}/App/uiModels/PlanningListModel.h
+    ${CMAKE_SOURCE_DIR}/App/viewModels/DatabasePageViewModel.cpp
+    ${CMAKE_SOURCE_DIR}/App/viewModels/DatabasePageViewModel.h
 )
 
 # ============================

@@ -5,6 +5,7 @@
 
 #include "DatabaseManager.h"
 #include "repositories/PlanningRepository.h"
+#include "repositories/ExerciseRepository.h"
 #include "viewmodels/DatabasePageViewModel.h"
 
 int main(int argc, char *argv[])
@@ -31,9 +32,15 @@ int main(int argc, char *argv[])
     auto planningRepo = new PlanningRepository(db);
 
     // ============================
+    // ViewModel
+    // ============================
+    auto databaseVM = new DatabasePageViewModel(planningRepo);
+
+    // ============================
     // QML
     // ============================
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("databaseVM", databaseVM);
     engine.loadFromModule("Weeklyft", "App");
 
     return app.exec();

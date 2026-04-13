@@ -34,6 +34,9 @@ class DatabasePageViewModel : public QObject
     Q_PROPERTY(int selectedExerciseId READ selectedExerciseId NOTIFY selectedExerciseChanged)
     Q_PROPERTY(QString selectedExerciseName READ selectedExerciseName NOTIFY selectedExerciseChanged)
 
+    Q_PROPERTY(int selectedDayIndex READ selectedDayIndex NOTIFY selectedDayChanged)
+    Q_PROPERTY(QString selectedDayName READ selectedDayName NOTIFY selectedDayChanged)
+
 
 public:
     explicit DatabasePageViewModel(PlanningRepository* planningRepo, ExerciseRepository* exerciseRepo);
@@ -88,12 +91,21 @@ public:
     QString selectedExerciseName() const;
 
 
+    // ===============================
+    // DAYS
+    // ===============================
+    Q_INVOKABLE void selectDay(int index);
+    int selectedDayIndex() const;
+    QString selectedDayName() const;
+
+
 signals:
     /**
      * Notifie changement de planning sélectionné
      */
     void selectedPlanningChanged();
     void selectedExerciseChanged();
+    void selectedDayChanged();
 
 private:
     // ===============================
@@ -118,4 +130,10 @@ private:
 
     // State UI
     Exercise m_selectedExercise;
+
+
+    // ===============================
+    // DAYS
+    // ===============================
+    int m_selectedDayIndex = -1;
 };

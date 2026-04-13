@@ -253,3 +253,30 @@ QString DatabasePageViewModel::selectedExerciseName() const
 {
     return m_selectedExercise.name;
 }
+
+
+// ===============================
+// DAYS
+// ===============================
+void DatabasePageViewModel::selectDay(int index)
+{
+    if (m_selectedDayIndex == index)
+        return;
+
+    m_selectedDayIndex = index;
+
+    emit selectedDayChanged();
+}
+
+int DatabasePageViewModel::selectedDayIndex() const
+{
+    return m_selectedDayIndex;
+}
+
+QString DatabasePageViewModel::selectedDayName() const
+{
+    if (m_selectedDayIndex < 0 || m_selectedDayIndex >= DAYS.size())
+        return "";
+
+    return DAYS[m_selectedDayIndex];
+}

@@ -62,4 +62,6 @@ qt_add_qml_module(WeeklyftApp
     QML_FILES
         WeeklyftContent/App.qml
         WeeklyftContent/DatabasePage.qml
+        WeeklyftContent/PlanningDaysPage.qml
+        WeeklyftContent/DayEditPage.qml
 )

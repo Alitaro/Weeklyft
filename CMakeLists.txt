@@ -27,8 +27,15 @@ qt_add_executable(WeeklyftApp
     ${CMAKE_SOURCE_DIR}/App/DatabaseManager.cpp
     ${CMAKE_SOURCE_DIR}/App/DatabaseManager.h
     ${CMAKE_SOURCE_DIR}/App/models/Planning.h
+    ${CMAKE_SOURCE_DIR}/App/models/Exercise.h
+    ${CMAKE_SOURCE_DIR}/App/models/Session.h
+    ${CMAKE_SOURCE_DIR}/App/models/ExerciseSession.h
     ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.cpp
     ${CMAKE_SOURCE_DIR}/App/repositories/PlanningRepository.h
+    ${CMAKE_SOURCE_DIR}/App/repositories/PlanningDayRepository.h
+    ${CMAKE_SOURCE_DIR}/App/repositories/PlanningDayRepository.cpp
+    ${CMAKE_SOURCE_DIR}/App/repositories/SessionRepository.h
+    ${CMAKE_SOURCE_DIR}/App/repositories/SessionRepository.cpp
     ${CMAKE_SOURCE_DIR}/App/uiModels/PlanningListModel.cpp
     ${CMAKE_SOURCE_DIR}/App/uiModels/PlanningListModel.h
     ${CMAKE_SOURCE_DIR}/App/repositories/ExerciseRepository.cpp

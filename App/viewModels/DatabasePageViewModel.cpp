@@ -5,6 +5,9 @@
 
 #include "../repositories/ExerciseRepository.h"
 #include "../uiModels/ExerciseListModel.h"
+#include "App/models/PlanningDay.h"
+#include "App/repositories/SessionRepository.h"
+#include "App/repositories/planningdayrepository.h"
 
 #include <QDebug>
 
@@ -20,14 +23,21 @@ static const QStringList DAYS = {
     "Jeudi", "Vendredi", "Samedi", "Dimanche"
 };
 
-DatabasePageViewModel::DatabasePageViewModel(PlanningRepository* planningRepo, ExerciseRepository* exerciseRepo)
+DatabasePageViewModel::DatabasePageViewModel(PlanningRepository*    planningRepo,
+                                             ExerciseRepository*    exerciseRepo,
+                                             PlanningDayRepository* planningDayRepo,
+                                             SessionRepository*     sessionRepo)
     : QObject(nullptr)
     , m_planningRepo(planningRepo)
     , m_planningModel(new PlanningListModel(this))
     , m_exerciseRepo(exerciseRepo)
     , m_exerciseModel(new ExerciseListModel(this))
+    , m_planningDayRepo(planningDayRepo)
+    , m_sessionRepo(sessionRepo)
 {
     Q_ASSERT(m_planningRepo);
+    Q_ASSERT(m_planningDayRepo);
+    Q_ASSERT(m_sessionRepo);
 
     // Chargement initial
     loadPlannings();
@@ -109,6 +119,8 @@ void DatabasePageViewModel::selectPlanning(int id)
     m_selectedPlanning = planning;
 
     qDebug() << "[DatabaseVM] Selected planning:" << planning.id << planning.name;
+
+    loadDaySessions();
 
     emit selectedPlanningChanged();
 }
@@ -279,4 +291,92 @@ QString DatabasePageViewModel::selectedDayName() const
         return "";
 
     return DAYS[m_selectedDayIndex];
+}
+
+
+// ===============================
+// SESSIONS
+// ===============================
+void DatabasePageViewModel::saveSession(const QString& name, const QVariantList& exercises)
+{
+    if (!m_planningDayRepo || !m_sessionRepo) return;
+    if (m_selectedPlanning.id <= 0)            return;
+    if (m_selectedDayIndex < 0 || m_selectedDayIndex >= DAYS.size()) return;
+    if (name.trimmed().isEmpty())               return;
+
+    const QString& dayName = DAYS[m_selectedDayIndex];
+
+    // 1. Supprimer session existante pour ce jour si elle existe
+    Session existing = m_sessionRepo->getSessionForDay(m_selectedPlanning.id, dayName);
+    if (existing.id > 0)
+        m_sessionRepo->deleteSession(existing.id);
+
+    // 2. Créer ou récupérer le PlanningDay
+    const PlanningDay day = m_planningDayRepo->getOrCreate(m_selectedPlanning.id, dayName);
+    if (day.id <= 0) return;
+
+    // 3. Créer la Session
+    const int sessionId = m_sessionRepo->createSession(day.id, name);
+    if (sessionId <= 0) return;
+
+    // 4. Créer les ExerciseSession
+    for (const QVariant& entry : exercises)
+    {
+        const QVariantMap map  = entry.toMap();
+        const int exerciseId   = map.value("id", -1).toInt();
+        const int series       = map.value("series", 0).toInt();
+        const int reps         = map.value("reps", 0).toInt();
+
+        if (exerciseId > 0)
+            m_sessionRepo->createExerciseSession(sessionId, exerciseId, series, reps);
+    }
+
+    qDebug() << "[DatabaseVM] Session saved, id:" << sessionId;
+
+    // 5. Rafraîchir les données côté QML
+    loadDaySessions();
+}
+
+void DatabasePageViewModel::loadDaySessions()
+{
+    m_daySessions.clear();
+
+    for (int i = 0; i < DAYS.size(); ++i)
+    {
+        const QString& dayName = DAYS[i];
+
+        Session session = m_sessionRepo->getSessionForDay(
+            m_selectedPlanning.id, dayName);
+
+        QVariantList exercises;
+
+        if (session.id > 0)
+        {
+            const auto details = m_sessionRepo->getExerciseDetails(session.id);
+
+            for (const ExerciseSessionDetail& d : details)
+            {
+                exercises.append(QVariantMap{
+                    {"exerciseId",   d.exerciseId},
+                    {"exerciseName", d.exerciseName},
+                    {"series",       d.series},
+                    {"reps",         d.reps}
+                });
+            }
+        }
+
+        m_daySessions.append(QVariantMap{
+            {"dayName",     dayName},
+            {"sessionId",   session.id},      // -1 si pas de session
+            {"sessionName", session.name},
+            {"exercises",   exercises}
+        });
+    }
+
+    emit daySessionsChanged();
+}
+
+QVariantList DatabasePageViewModel::daySessions() const
+{
+    return m_daySessions;
 }

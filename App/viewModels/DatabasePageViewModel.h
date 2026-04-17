@@ -10,6 +10,10 @@ class PlanningListModel;
 class ExerciseRepository;
 class ExerciseListModel;
 
+class PlanningDayRepository;
+class SessionRepository;
+
+
 /**
  * ViewModel de la page Database
  * - Expose les plannings à QML
@@ -37,9 +41,14 @@ class DatabasePageViewModel : public QObject
     Q_PROPERTY(int selectedDayIndex READ selectedDayIndex NOTIFY selectedDayChanged)
     Q_PROPERTY(QString selectedDayName READ selectedDayName NOTIFY selectedDayChanged)
 
+    Q_PROPERTY(QVariantList daySessions READ daySessions NOTIFY daySessionsChanged)
+
 
 public:
-    explicit DatabasePageViewModel(PlanningRepository* planningRepo, ExerciseRepository* exerciseRepo);
+    explicit DatabasePageViewModel(PlanningRepository*    planningRepo,
+                                   ExerciseRepository*    exerciseRepo,
+                                   PlanningDayRepository* planningDayRepo,
+                                   SessionRepository*     sessionRepo);
 
     // ===============================
     // PLANNINGS
@@ -95,8 +104,15 @@ public:
     // DAYS
     // ===============================
     Q_INVOKABLE void selectDay(int index);
+    Q_INVOKABLE void saveSession(const QString& name, const QVariantList& exercises);
     int selectedDayIndex() const;
     QString selectedDayName() const;
+
+    // ===============================
+    // SESSIONS
+    // ===============================
+    QVariantList daySessions() const;
+    void loadDaySessions();
 
 
 signals:
@@ -106,12 +122,14 @@ signals:
     void selectedPlanningChanged();
     void selectedExerciseChanged();
     void selectedDayChanged();
+    void daySessionsChanged();
 
 private:
     // ===============================
     // PLANNINGS
     // ===============================
     PlanningRepository* m_planningRepo = nullptr;
+    PlanningDayRepository* m_planningDayRepo = nullptr;
 
     // Model exposé à QML
     PlanningListModel* m_planningModel = nullptr;
@@ -136,4 +154,11 @@ private:
     // DAYS
     // ===============================
     int m_selectedDayIndex = -1;
+
+    // ===============================
+    // SESSIONS
+    // ===============================
+    QVariantList m_daySessions;
+    SessionRepository* m_sessionRepo = nullptr;    // déjà existant
+
 };
